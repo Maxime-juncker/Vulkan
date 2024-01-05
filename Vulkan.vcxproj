@@ -141,15 +141,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Public\App.h" />
     <ClInclude Include="Source\Public\Engine.h" />
     <ClInclude Include="Source\Public\Pipline.h" />
     <ClInclude Include="Source\Public\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Private\App.cpp" />
     <ClCompile Include="Source\Private\Engine.cpp" />
     <ClCompile Include="Source\Private\main.cpp" />
     <ClCompile Include="Source\Private\Pipline.cpp" />
     <ClCompile Include="Source\Private\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="compile.bat" />
+    <None Include="Ressources\Shaders\SimpleShader.frag" />
+    <None Include="Ressources\Shaders\SimpleShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

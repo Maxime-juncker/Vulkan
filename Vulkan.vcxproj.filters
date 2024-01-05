@@ -24,6 +24,9 @@
     <ClInclude Include="Source\Public\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Public\App.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Private\Engine.cpp">
@@ -38,5 +41,16 @@
     <ClCompile Include="Source\Private\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Private\App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Ressources\Shaders\SimpleShader.vert" />
+    <None Include="Ressources\Shaders\SimpleShader.frag" />
+    <None Include="compile.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>
