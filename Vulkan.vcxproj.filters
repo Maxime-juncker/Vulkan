@@ -52,5 +52,7 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include=".gitignore" />
+    <None Include="Ressources\Shaders\SimpleShader.frag.spv" />
+    <None Include="Ressources\Shaders\SimpleShader.vert.spv" />
   </ItemGroup>
 </Project>

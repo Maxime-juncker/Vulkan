@@ -157,7 +157,9 @@
     <None Include=".gitignore" />
     <None Include="compile.bat" />
     <None Include="Ressources\Shaders\SimpleShader.frag" />
+    <None Include="Ressources\Shaders\SimpleShader.frag.spv" />
     <None Include="Ressources\Shaders\SimpleShader.vert" />
+    <None Include="Ressources\Shaders\SimpleShader.vert.spv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
