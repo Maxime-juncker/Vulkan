@@ -1,5 +1,11 @@
 #include "../Public/Window.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include <string>
+#include <stdexcept>
+
 namespace Application
 {
 
@@ -12,6 +18,15 @@ namespace Application
 	{
 		glfwDestroyWindow(window);
 		glfwTerminate();
+	}
+
+	void Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
+	{
+		
+		if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create surface");
+		}
 	}
 
 	void Window::InitWindow()

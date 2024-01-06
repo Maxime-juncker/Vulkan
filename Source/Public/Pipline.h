@@ -1,10 +1,15 @@
 #pragma once
 
+#include "Engine.h"
 #include <string>
 #include <vector>
 
 namespace Application
 {
+	struct PiplineConfigInfo
+	{
+
+	};
 	class Pipline
 	{
 	public:

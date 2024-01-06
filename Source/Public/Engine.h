@@ -1,8 +1,8 @@
 #pragma once
-#include <vulkan/vulkan.h>
 #include <string>
 #include <vector>
 #include <optional>
+#include "Window.h"
 
 namespace Application
 {
@@ -10,10 +10,11 @@ namespace Application
 	{
 		// std::optional allow us to hase .has_value() funct
 		std::optional<uint32_t> graphicsFamily;
+		std::optional<uint32_t> presentFamily;
 
 		bool isComplete()
 		{
-			return graphicsFamily.has_value();
+			return graphicsFamily.has_value() && presentFamily.has_value();
 		}
 
 	};
@@ -21,7 +22,7 @@ namespace Application
 	class Engine
 	{
 	public:
-		Engine();
+		Engine(Window& window);
 		~Engine();
 
 #ifdef NDEBUG
@@ -31,8 +32,8 @@ namespace Application
 #endif
 
 	private:
-		void InitVulkan();
 		void CreateInstance();
+		void CreateSurface();
 		void ShowExtensions();
 		std::vector<const char*> GetRequiredExtensions();
 		bool CheckValidationLayerSupport();
@@ -62,11 +63,14 @@ namespace Application
 			"VK_LAYER_KHRONOS_validation"
 		};
 
+		Window& window;
 		VkDebugUtilsMessengerEXT callback;
 		VkInstance instance;
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkPhysicalDeviceProperties physicalDeviceProperties;
 		VkDevice device;
 		VkQueue graphicsQueue;
+		VkQueue presentQueue;
+		VkSurfaceKHR surface;
 	};
 }

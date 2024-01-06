@@ -19,7 +19,7 @@ namespace Application
 	private:
 		Window window{WIDTH, HEIGHT, "Jen fenetre"};
 		Pipline pipline{ "Ressources/Shaders/SimpleShader.vert.spv", "Ressources/Shaders/SimpleShader.frag.spv" };
-		Engine engine;
+		Engine engine{window};
 	};
 
 }

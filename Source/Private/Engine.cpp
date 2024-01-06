@@ -1,7 +1,10 @@
 #include "../Public/Engine.h"
 
-#define GLFW_INLCLUDE_VULKAN
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
+#include "../Public/Window.h"
+
 #include <stdexcept>
 #include <iostream>
 #include <vector>
@@ -9,14 +12,18 @@
 #include <string>
 #include <cstring>
 #include <map>
+#include <set>
 
 namespace Application
 {
 
-
-	Engine::Engine()
+	Engine::Engine(Window& window) : window{window}
 	{
-		InitVulkan();
+		CreateInstance();
+		SetupDebugMessenger();
+		CreateSurface();
+		PickPhysicalDevice();
+		CreateLogicalDevice();
 	}
 
 	Engine::~Engine()
@@ -24,13 +31,6 @@ namespace Application
 		Cleanup();
 	}
 
-	void Engine::InitVulkan()
-	{
-		CreateInstance();
-		SetupDebugMessenger();
-		PickPhysicalDevice();
-		CreateLogicalDevice();
-	}
 
 	void Engine::CreateInstance()
 	{
@@ -92,6 +92,11 @@ namespace Application
 			throw std::runtime_error("Failed to create instance!");
 		}
 
+	}
+
+	void Engine::CreateSurface()
+	{
+		window.CreateWindowSurface(instance, &surface);
 	}
 
 	void Engine::ShowExtensions()
@@ -234,6 +239,7 @@ namespace Application
 			DestroyDebugUtilsMessengerEXT(instance, callback, nullptr);
 		}
 
+		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
 	}
 	
@@ -342,6 +348,7 @@ namespace Application
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
+
 		int i = 0;
 		for (const auto& queueFamily : queueFamilies)
 		{
@@ -351,7 +358,15 @@ namespace Application
 				indices.graphicsFamily = i;
 			}
 
-			// If we found a queue we are ok
+			// Does the device support surface ?
+			VkBool32 presentSupport = false;
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+			if (presentSupport)
+			{
+				indices.presentFamily = i;
+			}
+			
+			// If the indice is complete => successful
 			if (indices.isComplete())
 			{
 				break;
@@ -366,22 +381,27 @@ namespace Application
 	void Engine::CreateLogicalDevice()
 	{
 		QueueFamiliesIndices indices = FindQueueFamilies(physicalDevice);
-
-		VkDeviceQueueCreateInfo queueCreateInfo{};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-		queueCreateInfo.queueCount = 1;
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+		std::set<uint32_t> uniqueQueuefamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		float queuePriority = 1.0f;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
+		for (uint32_t queueFamily : uniqueQueuefamilies)
+		{
+			VkDeviceQueueCreateInfo queueCreateInfo{};
+			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex = queueFamily;
+			queueCreateInfo.queueCount = 1;
+			queueCreateInfo.pQueuePriorities = &queuePriority;
+			queueCreateInfos.push_back(queueCreateInfo);
+		}
 
 		// Later add the feature that we need in this struct (do not forget to test if they here in isDeviceSuitable)
 		VkPhysicalDeviceFeatures deviceFeatures{};
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.pQueueCreateInfos = &queueCreateInfo;
-		createInfo.queueCreateInfoCount = 1;
+		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+		createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
 		
@@ -402,5 +422,8 @@ namespace Application
 		}
 
 		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+
+
 	}
 }

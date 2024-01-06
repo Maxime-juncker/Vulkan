@@ -6,6 +6,7 @@
 
 namespace Application
 {
+
 	Pipline::Pipline(const std::string& vertFilePath, const std::string& fragFilePath)
 	{
 		CreateGraphicPipline(vertFilePath, fragFilePath);
