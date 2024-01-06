@@ -21,7 +21,7 @@
     <ClInclude Include="Source\Public\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\Engine.h">
+    <ClInclude Include="Source\Public\Device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Public\App.h">
@@ -29,7 +29,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Private\Engine.cpp">
+    <ClCompile Include="Source\Private\Device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Private\Pipline.cpp">

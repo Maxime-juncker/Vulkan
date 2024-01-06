@@ -1,4 +1,4 @@
-#include "../Public/Engine.h"
+#include "../Public/Device.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -17,7 +17,7 @@
 namespace Application
 {
 
-	Engine::Engine(Window& window) : window{window}
+	Device::Device(Window& window) : window{window}
 	{
 		CreateInstance();
 		SetupDebugMessenger();
@@ -26,13 +26,13 @@ namespace Application
 		CreateLogicalDevice();
 	}
 
-	Engine::~Engine()
+	Device::~Device()
 	{
 		Cleanup();
 	}
 
 
-	void Engine::CreateInstance()
+	void Device::CreateInstance()
 	{
 		if (enableValidationLayers && !CheckValidationLayerSupport())
 		{
@@ -44,7 +44,7 @@ namespace Application
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "Jen Application";
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "No Engine";
+		appInfo.pEngineName = "No Device";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -94,12 +94,12 @@ namespace Application
 
 	}
 
-	void Engine::CreateSurface()
+	void Device::CreateSurface()
 	{
 		window.CreateWindowSurface(instance, &surface);
 	}
 
-	void Engine::ShowExtensions()
+	void Device::ShowExtensions()
 	{
 		uint32_t extensionCount;
 
@@ -134,7 +134,7 @@ namespace Application
 
 	}
 
-	std::vector<const char*> Engine::GetRequiredExtensions()
+	std::vector<const char*> Device::GetRequiredExtensions()
 	{
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
@@ -151,7 +151,7 @@ namespace Application
 		return extensions;
 	}
 
-	bool Engine::CheckValidationLayerSupport()
+	bool Device::CheckValidationLayerSupport()
 	{
 		uint32_t layerCount;
 
@@ -216,7 +216,7 @@ namespace Application
 		return VK_FALSE;
 	}
 
-	void Engine::SetupDebugMessenger()
+	void Device::SetupDebugMessenger()
 	{
 		if (!enableValidationLayers) return;
 
@@ -230,7 +230,7 @@ namespace Application
 
 	}
 
-	void Engine::Cleanup()
+	void Device::Cleanup()
 	{
 		vkDestroyDevice(device, nullptr);
 
@@ -244,7 +244,7 @@ namespace Application
 	}
 	
 
-	VkResult Engine::CreateDebugUtilsMessengerEXT(
+	VkResult Device::CreateDebugUtilsMessengerEXT(
 		VkInstance instance,
 		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 		const VkAllocationCallbacks* pAllocator,
@@ -262,7 +262,7 @@ namespace Application
 		}
 	}
 
-	void Engine::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+	void Device::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 	{
 		createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -277,7 +277,7 @@ namespace Application
 
 	}
 
-	void Engine::DestroyDebugUtilsMessengerEXT(
+	void Device::DestroyDebugUtilsMessengerEXT(
 		VkInstance instance,
 		VkDebugUtilsMessengerEXT callback,
 		const VkAllocationCallbacks* pAllocator)
@@ -290,7 +290,7 @@ namespace Application
 		
 	}
 
-	void Engine::PickPhysicalDevice()
+	void Device::PickPhysicalDevice()
 	{
 		// Getting the number of physical device
 		uint32_t deviceCount = 0;
@@ -324,7 +324,7 @@ namespace Application
 
 	}
 
-	bool Engine::isDeviceSuitable(VkPhysicalDevice device)
+	bool Device::isDeviceSuitable(VkPhysicalDevice device)
 	{
 		// Getting the properties and feature of the device.
 		VkPhysicalDeviceProperties deviceProperties;
@@ -338,7 +338,7 @@ namespace Application
 		return indices.isComplete();
 	}
 
-	QueueFamiliesIndices Engine::FindQueueFamilies(VkPhysicalDevice device)
+	QueueFamiliesIndices Device::FindQueueFamilies(VkPhysicalDevice device)
 	{
 		QueueFamiliesIndices indices;
 		
@@ -378,7 +378,7 @@ namespace Application
 		return indices;
 	}
 
-	void Engine::CreateLogicalDevice()
+	void Device::CreateLogicalDevice()
 	{
 		QueueFamiliesIndices indices = FindQueueFamilies(physicalDevice);
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

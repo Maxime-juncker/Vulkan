@@ -2,7 +2,7 @@
 
 #include "Window.h"
 #include "Pipline.h"
-#include "Engine.h"
+#include "Device.h"
 
 namespace Application
 {
@@ -18,8 +18,12 @@ namespace Application
 
 	private:
 		Window window{WIDTH, HEIGHT, "Jen fenetre"};
-		Pipline pipline{ "Ressources/Shaders/SimpleShader.vert.spv", "Ressources/Shaders/SimpleShader.frag.spv" };
-		Engine engine{window};
+		Device device{window};
+		Pipeline pipleine{device,
+			"Ressources/Shaders/SimpleShader.vert.spv",
+			"Ressources/Shaders/SimpleShader.frag.spv",
+			Pipeline::DefaultPiplineConfigInfo(WIDTH, HEIGHT)
+		};
 	};
 
 }

@@ -19,11 +19,14 @@ namespace Application
 
 	};
 
-	class Engine
+	class Device
 	{
 	public:
-		Engine(Window& window);
-		~Engine();
+		Device(Window& window);
+		~Device();
+
+		VkDevice GetDevice() { return device; }
+
 
 #ifdef NDEBUG
 		const bool enableValidationLayers = false;
