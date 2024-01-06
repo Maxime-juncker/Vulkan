@@ -146,6 +146,7 @@
     <ClInclude Include="Source\Public\App.h" />
     <ClInclude Include="Source\Public\Device.h" />
     <ClInclude Include="Source\Public\Pipline.h" />
+    <ClInclude Include="Source\Public\SwapChain.h" />
     <ClInclude Include="Source\Public\Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +154,7 @@
     <ClCompile Include="Source\Private\Device.cpp" />
     <ClCompile Include="Source\Private\main.cpp" />
     <ClCompile Include="Source\Private\Pipline.cpp" />
+    <ClCompile Include="Source\Private\SwapChain.cpp" />
     <ClCompile Include="Source\Private\Window.cpp" />
   </ItemGroup>
   <ItemGroup>

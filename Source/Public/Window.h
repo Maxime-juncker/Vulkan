@@ -14,12 +14,12 @@ namespace Application
 		bool ShouldClose() { return glfwWindowShouldClose(window); };
 		void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
+		const int width;
+		const int height;
 	private:
 
 		void InitWindow();
 
-		const int width;
-		const int height;
 		
 		std::string windowName;
 		GLFWwindow* window;

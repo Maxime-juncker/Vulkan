@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "../Public/Window.h"
+#include "../Public/App.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -13,6 +14,7 @@
 #include <cstring>
 #include <map>
 #include <set>
+#include <algorithm>
 
 namespace Application
 {
@@ -24,6 +26,8 @@ namespace Application
 		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
+
+		//CreateSwapChain(); // A bouger dans sa class
 	}
 
 	Device::~Device()
@@ -98,6 +102,27 @@ namespace Application
 	{
 		window.CreateWindowSurface(instance, &surface);
 	}
+
+	//void Device::CreateSwapChain()
+	//{
+	//	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice);
+
+	//	VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
+	//	VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
+	//	VkExtent2D extend = ChooseSwapExtent(swapChainSupport.capabilities);
+
+	//	// Getting the fps (0 = no max fps)
+	//	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
+	//	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+	//	{
+	//		imageCount = swapChainSupport.capabilities.maxImageCount;
+	//	}
+
+	//	VkSwapchainCreateInfoKHR createInfo{};
+	//	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR;
+	//	createInfo.surface = surface;
+	//}
 
 	void Device::ShowExtensions()
 	{
@@ -332,10 +357,40 @@ namespace Application
 		vkGetPhysicalDeviceProperties(device, &deviceProperties);
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-		// Test Here.
+		// Does the device has the right queues ?
 		QueueFamiliesIndices indices = FindQueueFamilies(device);
 
-		return indices.isComplete();
+		// Does the device has the right extensions ?
+		bool extensionsSupported = CheckDeviceExtensionSupport(device);
+
+		// Does the device has the right swap chain
+		bool swapChainAdequate = false;
+		if (extensionsSupported)
+		{
+			SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+		}
+
+		return indices.isComplete() && extensionsSupported && swapChainAdequate;
+	}
+
+	bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device)
+	{
+		// Getting all available extensions
+		uint32_t extensionCount;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+		std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+		for (const auto& extension : availableExtensions)
+		{
+			requiredExtensions.erase(extension.extensionName);
+		}
+
+		return requiredExtensions.empty();
 	}
 
 	QueueFamiliesIndices Device::FindQueueFamilies(VkPhysicalDevice device)
@@ -378,6 +433,36 @@ namespace Application
 		return indices;
 	}
 
+	SwapChainSupportDetails Device::QuerySwapChainSupport(VkPhysicalDevice device)
+	{
+		SwapChainSupportDetails details;
+
+		// Getting basic texture capablilities
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+
+		// Getting textures formats
+		uint32_t formatCount;
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+		if (formatCount != 0)
+		{
+			details.formats.resize(formatCount);
+			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+		}
+
+		// Getting surface mode
+		uint32_t presentModeCount;
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+
+		if (presentModeCount != 0)
+		{
+			details.presentModes.resize(presentModeCount);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+		}
+
+		return details;
+	}
+
 	void Device::CreateLogicalDevice()
 	{
 		QueueFamiliesIndices indices = FindQueueFamilies(physicalDevice);
@@ -403,9 +488,11 @@ namespace Application
 		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 		createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
 		createInfo.pEnabledFeatures = &deviceFeatures;
 		
-		createInfo.enabledExtensionCount = 0;
 		if (enableValidationLayers)
 		{
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
