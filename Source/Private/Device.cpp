@@ -95,11 +95,16 @@ namespace Application
 			throw std::runtime_error("Failed to create instance!");
 		}
 
+		std::cout << "\n[INFO]: Device instance created successfuly !" << std::endl;
+
+
 	}
 
 	void Device::CreateSurface()
 	{
 		window.CreateWindowSurface(instance, &surface);
+		std::cout << "[INFO]: Surface created successfuly" << std::endl;
+
 	}
 
 	void Device::CreateCommandPool()
@@ -132,7 +137,7 @@ namespace Application
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 		std::unordered_set<std::string> available;
 		
-		std::cout << "\nAvalaible Extension : " << std::endl;
+		std::cout << "\n[INFO]: Avalaible Extension : " << std::endl;
 		for (const auto& extension : extensions)
 		{
 			std::cout << '\t' << extension.extensionName << std::endl;
@@ -140,7 +145,7 @@ namespace Application
 
 		}
 
-		std::cout << "\nRequired extensions:" << std::endl;
+		std::cout << "\n[INFO]: Required extensions:" << std::endl;
 		auto requiredExtensions = GetRequiredExtensions();
 		for (const auto& extension : requiredExtensions)
 		{
@@ -184,13 +189,13 @@ namespace Application
 		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 		
 		// Debug
-		std::cout << "\nValidation layer available:" << std::endl;
+		std::cout << "\n[INFO]: Validation layer available:" << std::endl;
 		for (const auto& layerProperties : availableLayers)
 		{
 			std::cout << "\t" << layerProperties.layerName << std::endl;
 		}
 
-		std::cout << "\nValidation layer requiered:" << std::endl;
+		std::cout << "\n[INFO]: Validation layer requiered:" << std::endl;
 		for (const auto& layerName : validationLayers)
 		{
 			std::cout << "\t" << layerName << std::endl;
@@ -342,7 +347,7 @@ namespace Application
 		}
 
 		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
-		std::cout << "\nPhysical device: " << physicalDeviceProperties.deviceName << std::endl;
+		std::cout << "[INFO]: Physical device: " << physicalDeviceProperties.deviceName << std::endl;
 
 	}
 
@@ -457,7 +462,6 @@ namespace Application
 			details.presentModes.resize(presentModeCount);
 			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
 		}
-
 		return details;
 	}
 
@@ -505,6 +509,8 @@ namespace Application
 		{
 			throw std::runtime_error("Failed to create logical device!");
 		}
+
+		std::cout << "[INFO]: Logical device created successfuly!" << std::endl;
 
 		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
 		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);

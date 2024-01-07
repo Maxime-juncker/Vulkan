@@ -150,19 +150,13 @@ namespace Application
 
 		VkAttachmentReference colorAttachmentRef = {};
 		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; //VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; //VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
 
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-
-		VkRenderPassCreateInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
-		renderPassInfo.pAttachments = &colorAttachment;
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
 
 		// Creating subpass dependencies
 		VkSubpassDependency dependency{};
@@ -173,6 +167,12 @@ namespace Application
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
+		VkRenderPassCreateInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
@@ -232,11 +232,11 @@ namespace Application
 			// If we can found VK_PRESENT_MODE_MAILBOX_KHR, then we can use trible buffuring
 			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
-				std::cout << "Present mode selected: Mailbox" << std::endl;
+				std::cout << "[INFO]: Present mode selected: Mailbox" << std::endl;
 				return availablePresentMode;
 			}
 		}
-		std::cout << "Mailbox not available, falling back to vsync" << std::endl;
+		std::cout << "[INFO]: Present mode: vsync (mailbox not available)" << std::endl;
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 

@@ -121,6 +121,7 @@ namespace Application
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetGraphicPipeline());
 		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+		vkCmdEndRenderPass(commandBuffer);
 
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 		{
@@ -166,6 +167,7 @@ namespace Application
 	{
 		// Make sure to wait for the old frame finish
 		vkWaitForFences(device.GetDevice(), 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+		vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
 
 		// Setting the next frame
 		uint32_t imageIndex;
@@ -173,14 +175,9 @@ namespace Application
 		vkAcquireNextImageKHR(device.GetDevice(), swapChain.GetSwapChain(), UINT64_MAX,
 			imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-		// Check if the former frame is using this image (there is a fence to wait)
-		if (inFlightImages[imageIndex] != VK_NULL_HANDLE)
-		{
-			vkWaitForFences(device.GetDevice(), 1, &inFlightImages[imageIndex], VK_TRUE, UINT64_MAX);
-		}
-		// Set the image as use by this frame
-		inFlightImages[imageIndex] = inFlightFences[currentFrame];
-
+		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+		RecordCommandBuffers(commandBuffers[currentFrame], imageIndex);
+		
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -191,14 +188,14 @@ namespace Application
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+		submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
 		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame]};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		// Reset the fence for next frame
-		vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
+		//vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
 
 		// Sending the frame in the queue
 		if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
@@ -222,7 +219,7 @@ namespace Application
 		vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
 
 		// Don't overload the gpu
-		vkQueueWaitIdle(device.GetGraphicsQueue());
+		//vkQueueWaitIdle(device.GetGraphicsQueue()); // probl
 
 		// Cycle between frames
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;

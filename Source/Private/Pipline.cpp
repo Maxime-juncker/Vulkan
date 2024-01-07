@@ -14,6 +14,7 @@ namespace Application
 		const std::string& fragFilePath,
 		const PiplineConfigInfo& configInfo) : device{ device }
 	{
+		std::cout << "\n[INFO]: Creating Pipeline..." << std::endl;
 		CreateGraphicPipline(vertFilePath, fragFilePath, configInfo);
 	}
 
@@ -136,6 +137,9 @@ namespace Application
 			throw std::runtime_error("Failed to create graphics pipeline");
 		}
 
+		std::cout << "\t[INFO]: Pipeline created successfuly!" << std::endl;
+
+
 	}
 
 	PiplineConfigInfo Pipeline::DefaultPiplineConfigInfo(uint32_t width, uint32_t height)
@@ -164,7 +168,7 @@ namespace Application
 		configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
 		configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
 		configInfo.rasterizationInfo.lineWidth = 1.0f;
-		configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+		configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 		configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
 		configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
@@ -228,5 +232,8 @@ namespace Application
 		{
 			throw std::runtime_error("Failed to create shader module!");
 		}
+
+		std::cout << "\t[INFO]: shader module created successfuly!" << std::endl;
+
 	}
 }
