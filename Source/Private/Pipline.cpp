@@ -58,14 +58,7 @@ namespace Application
 		const std::string& fragFilePath,
 		const PiplineConfigInfo& configInfo)
 	{
-		////
 
-		//ENLEVER LE RETURN QUAND CE SERA BON
-
-		////
-
-
-		return;
 
 		assert(configInfo.pipelineLayout != VK_NULL_HANDLE &&
 			"Cannot create graphics pipeline: no pipelineLayout given in configInfo");
@@ -80,23 +73,23 @@ namespace Application
 		CreateShaderModule(vertCode, &vertShaderModule);
 		CreateShaderModule(fragCode, &fragShaderModule);
 
-		// Setting the frag and vert shader stage
-		VkPipelineShaderStageCreateInfo shaderStage[2];
-		shaderStage[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaderStage[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-		shaderStage[0].module = vertShaderModule;
-		shaderStage[0].pName = "main";
-		shaderStage[0].flags = 0;
-		shaderStage[0].pName = nullptr;
-		shaderStage[0].pSpecializationInfo = nullptr;
+		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vertShaderStageInfo.module = vertShaderModule;
+		vertShaderStageInfo.pName = "main";
+		vertShaderStageInfo.flags = 0;
+		vertShaderStageInfo.pSpecializationInfo = nullptr;
 
-		shaderStage[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaderStage[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		shaderStage[1].module = fragShaderModule;
-		shaderStage[1].pName = "main";
-		shaderStage[1].flags = 0;
-		shaderStage[1].pName = nullptr;
-		shaderStage[1].pSpecializationInfo = nullptr;
+		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		fragShaderStageInfo.module = fragShaderModule;
+		fragShaderStageInfo.pName = "main";
+		fragShaderStageInfo.flags = 0;
+		fragShaderStageInfo.pSpecializationInfo = nullptr;
+
+		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 		// Setting the vertex input info
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -119,13 +112,13 @@ namespace Application
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStage;
+		pipelineInfo.pStages = shaderStages;
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
 		pipelineInfo.pViewportState = &viewportInfo;
 		pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
 		pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
-		pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
+		pipelineInfo.pDepthStencilState = nullptr;  //&configInfo.depthStencilInfo;
 		pipelineInfo.pDynamicState = nullptr;
 		pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
 
@@ -137,7 +130,8 @@ namespace Application
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
 		// Creating the pipeline
-		if (vkCreateGraphicsPipelines(device.GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicPipline) != VK_SUCCESS)
+		if (vkCreateGraphicsPipelines(device.GetDevice(), VK_NULL_HANDLE, 1,
+			&pipelineInfo, nullptr, &graphicPipline) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create graphics pipeline");
 		}

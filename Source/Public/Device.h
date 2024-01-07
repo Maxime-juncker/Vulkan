@@ -35,9 +35,13 @@ namespace Application
 		VkSurfaceKHR GetSurface() { return surface; }
 		VkDevice GetLogicalDevice() { return device; }
 		VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
+		VkCommandPool GetCommandPool() { return commandPool; }
 
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 		QueueFamiliesIndices FindQueueFamilies(VkPhysicalDevice device);
+
+		VkQueue GetGraphicsQueue() { return graphicsQueue; }
+		VkQueue GetPresentQueue() { return presentQueue; }
 
 #ifdef NDEBUG
 		const bool enableValidationLayers = false;
@@ -48,6 +52,8 @@ namespace Application
 	private:
 		void CreateInstance();
 		void CreateSurface();
+		void CreateCommandPool();
+
 		void ShowExtensions();
 		std::vector<const char*> GetRequiredExtensions();
 		bool CheckValidationLayerSupport();
@@ -91,5 +97,8 @@ namespace Application
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
 		VkSurfaceKHR surface;
+
+		VkCommandPool commandPool;
+
 	};
 }

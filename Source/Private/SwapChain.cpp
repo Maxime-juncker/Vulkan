@@ -3,16 +3,35 @@
 #include "../Public/App.h"
 #include <algorithm>
 #include <stdexcept>
+#include <iostream>
+#include <array>
 
 namespace Application
 {
-	SwapChain::SwapChain(Device& device) : device{device}
+	SwapChain::SwapChain(Device& device, VkExtent2D windowExtent) : device{device}, windowExtent{windowExtent}
 	{
 		CreateSwapChain();
+		CreateImageView();
+		CreateRenderPass();
+		CreateFrameBuffers();
+		
 	}
 
 	SwapChain::~SwapChain()
 	{
+		// Cleaning up the ressources
+
+		for (auto framebuffer : swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(device.GetDevice(), framebuffer, nullptr);
+		}
+
+		for (auto imageView : swapChainImageViews)
+		{
+			vkDestroyImageView(device.GetDevice(), imageView, nullptr);
+		}
+
+		vkDestroyRenderPass(device.GetDevice(), renderPass, nullptr);
 		vkDestroySwapchainKHR(device.GetDevice(), swapChain, nullptr);
 	}
 
@@ -81,6 +100,116 @@ namespace Application
 		swapChainExtend = extend;
 	}
 
+	void SwapChain::CreateImageView()
+	{
+		swapChainImageViews.resize(swapChainImages.size());
+
+		// Populating the swap chain images views
+		for (size_t i = 0; i < swapChainImages.size(); i++)
+		{
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = swapChainImages[i];
+
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = swapChainImageFormat;
+
+			// Setting the colors of the image view
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+			// Setting image usecase
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			// Creating the image view
+			if (vkCreateImageView(device.GetDevice(), &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create an image view");
+			}
+		}
+	}
+
+	void SwapChain::CreateRenderPass()
+	{
+
+		VkAttachmentDescription colorAttachment{};
+		colorAttachment.format = swapChainImageFormat;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		VkAttachmentReference colorAttachmentRef = {};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; //VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription subpass = {};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		VkRenderPassCreateInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+
+		// Creating subpass dependencies
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
+
+		if (vkCreateRenderPass(device.GetDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create render pass");
+		}
+	}
+
+	void SwapChain::CreateFrameBuffers()
+	{
+		swapChainFramebuffers.resize(swapChainImageViews.size());
+
+		for (size_t i = 0; i < swapChainImageViews.size(); i++)
+		{
+			VkImageView attachment[] =
+			{
+				swapChainImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebuffersInfo{};
+			framebuffersInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebuffersInfo.renderPass = renderPass;
+			framebuffersInfo.attachmentCount = 1;
+			framebuffersInfo.pAttachments = attachment;
+			framebuffersInfo.width = GetWidth();
+			framebuffersInfo.height = GetHeight();
+			framebuffersInfo.layers = 1;
+
+			if (vkCreateFramebuffer(device.GetDevice(), &framebuffersInfo, nullptr, &swapChainFramebuffers[i])
+				!= VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create framebuffers");
+			}
+		}
+	}
+
 	VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 	{
 		for (const auto& availableFormat : availableFormats)
@@ -103,10 +232,11 @@ namespace Application
 			// If we can found VK_PRESENT_MODE_MAILBOX_KHR, then we can use trible buffuring
 			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
+				std::cout << "Present mode selected: Mailbox" << std::endl;
 				return availablePresentMode;
 			}
 		}
-
+		std::cout << "Mailbox not available, falling back to vsync" << std::endl;
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
@@ -119,7 +249,7 @@ namespace Application
 		}
 		else
 		{
-			VkExtent2D actualExtent = { App::WIDTH, App::HEIGHT };
+			VkExtent2D actualExtent = windowExtent;
 
 			// Getting the biggest resolution possible that's in the range of the width and height of the app 
 			actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width,
@@ -130,4 +260,5 @@ namespace Application
 			return actualExtent;
 		}
 	}
+
 }

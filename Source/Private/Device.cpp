@@ -26,8 +26,7 @@ namespace Application
 		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
-
-		//CreateSwapChain(); // A bouger dans sa class
+		CreateCommandPool();
 	}
 
 	Device::~Device()
@@ -103,26 +102,23 @@ namespace Application
 		window.CreateWindowSurface(instance, &surface);
 	}
 
-	//void Device::CreateSwapChain()
-	//{
-	//	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice);
+	void Device::CreateCommandPool()
+	{
+		QueueFamiliesIndices queueFamilyIndices = FindQueueFamilies(physicalDevice);
 
-	//	VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
-	//	VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-	//	VkExtent2D extend = ChooseSwapExtent(swapChainSupport.capabilities);
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-	//	// Getting the fps (0 = no max fps)
-	//	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create command pool");
+		}
 
-	//	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
-	//	{
-	//		imageCount = swapChainSupport.capabilities.maxImageCount;
-	//	}
+	}
 
-	//	VkSwapchainCreateInfoKHR createInfo{};
-	//	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR;
-	//	createInfo.surface = surface;
-	//}
+	
 
 	void Device::ShowExtensions()
 	{
@@ -236,7 +232,7 @@ namespace Application
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData) 
 	{
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		std::cerr << "\n[VALIDATION LAYERS]: " << pCallbackData->pMessage << std::endl;
 
 		return VK_FALSE;
 	}
@@ -257,6 +253,7 @@ namespace Application
 
 	void Device::Cleanup()
 	{
+		vkDestroyCommandPool(device, commandPool, nullptr);
 		vkDestroyDevice(device, nullptr);
 
 		if (enableValidationLayers)
@@ -307,7 +304,7 @@ namespace Application
 		VkDebugUtilsMessengerEXT callback,
 		const VkAllocationCallbacks* pAllocator)
 	{
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr)
 		{
 			return func(instance, callback, pAllocator);
@@ -432,6 +429,7 @@ namespace Application
 
 		return indices;
 	}
+
 
 	SwapChainSupportDetails Device::QuerySwapChainSupport(VkPhysicalDevice device)
 	{

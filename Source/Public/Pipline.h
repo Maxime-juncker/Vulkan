@@ -36,6 +36,7 @@ namespace Application
 		void operator=(const Pipeline&) = delete;
 
 		static PiplineConfigInfo DefaultPiplineConfigInfo(uint32_t width, uint32_t height);
+		VkPipeline GetGraphicPipeline() { return graphicPipline; }
 
 	private:
 		static std::vector<char> ReadFile(const std::string& path);
