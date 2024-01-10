@@ -43,6 +43,9 @@ namespace Application
 		VkQueue GetGraphicsQueue() { return graphicsQueue; }
 		VkQueue GetPresentQueue() { return presentQueue; }
 
+		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+
 #ifdef NDEBUG
 		const bool enableValidationLayers = false;
 #else
@@ -52,6 +55,7 @@ namespace Application
 	private:
 		void CreateInstance();
 		void CreateSurface();
+		void CreateLogicalDevice();
 		void CreateCommandPool();
 
 		void ShowExtensions();
@@ -75,8 +79,6 @@ namespace Application
 		void PickPhysicalDevice();
 		bool isDeviceSuitable(VkPhysicalDevice);
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
-
-		void CreateLogicalDevice();
 
 		const std::vector<const char*> validationLayers =
 		{

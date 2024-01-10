@@ -4,6 +4,7 @@
 #include "Pipline.h"
 #include "Device.h"
 #include "SwapChain.h"
+#include "Model.h"
 
 #include <memory>
 #include <vector>
@@ -37,6 +38,8 @@ namespace Application
 		Device device{ window };
 		SwapChain swapChain{ device, window.GetExtend() };
 		std::unique_ptr<Pipeline> pipeline;
+		Model model{};
+
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
 
