@@ -8,8 +8,11 @@ namespace Application
 	App::App()
 	{
 		// Creating the app
+		model = std::make_unique<Model>(device);
+		model->CreateVertexBuffers();
 		CreatePipelineLayout();
 		CreatePipeline();
+
 		CreateCommandBuffers();
 		CreateSyncObject();
 	}
@@ -25,6 +28,8 @@ namespace Application
 			vkDestroySemaphore(device.GetDevice(), renderFinishedSemaphores[i], nullptr);
 			vkDestroyFence(device.GetDevice(), inFlightFences[i], nullptr);
 		}
+
+		device.Cleanup();
 	}
 
 	void App::Run()
@@ -120,7 +125,14 @@ namespace Application
 
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetGraphicPipeline());
-		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+		VkBuffer vertexBuffers[]{ model->GetVertexBuffer() };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+		vkCmdDraw(commandBuffer, static_cast<uint32_t>(model->vertices.size()), 1, 0, 0);
+
+		//vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 		vkCmdEndRenderPass(commandBuffer);
 
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)

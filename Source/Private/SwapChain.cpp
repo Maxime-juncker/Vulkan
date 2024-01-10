@@ -14,7 +14,6 @@ namespace Application
 		CreateImageView();
 		CreateRenderPass();
 		CreateFrameBuffers();
-		
 	}
 
 	SwapChain::~SwapChain()

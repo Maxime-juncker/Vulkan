@@ -3,6 +3,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "Device.h"
+
 #include <glm/glm.hpp>
 #include <vector>
 #include <array>
@@ -51,17 +53,24 @@ namespace Application
 	class Model
 	{
 	public:
-		Model() {};
-		~Model() {};
+		Model(Device device);
+		~Model();
 
-	private:
+		VkBuffer GetVertexBuffer() { return vertexBuffer; }
+
 		const std::vector<Vertex> vertices =
 		{
 			{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
 			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
 			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-
 		};
+
+		void CreateVertexBuffers();
+	private:
+
+		Device device;
+		VkBuffer vertexBuffer;
+		VkDeviceMemory vertexBufferMemory;
 	};
 
 }
