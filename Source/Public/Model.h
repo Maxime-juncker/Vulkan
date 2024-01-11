@@ -19,7 +19,7 @@ namespace Application
 		static VkVertexInputBindingDescription getBindingDescription()
 		{
 			VkVertexInputBindingDescription bindingDescription{};
-			bindingDescription.binding + 0;
+			bindingDescription.binding = 0;
 			// Note : We need to specifies the number of bytes from one entry to the next
 			bindingDescription.stride = sizeof(Vertex);
 			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -35,7 +35,7 @@ namespace Application
 			attributeDescriptions[0].binding = 0;
 			attributeDescriptions[0].location = 0;
 			attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[0].offset = 0;
+			attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
 			// Color attribute
 			attributeDescriptions[1].binding = 0;
@@ -43,8 +43,6 @@ namespace Application
 			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 			// Note : the color attribute is at an offset in the vertex struct because it's the 2nd parameter
 			attributeDescriptions[1].offset = offsetof(Vertex, color); 
-
-
 
 			return attributeDescriptions;
 		}
@@ -63,6 +61,10 @@ namespace Application
 			{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
 			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
 			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+
+			{{-0.3f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{-0.8f, 0.5f}, {0.0f, 0.0f, 1.0f}},
 		};
 
 		void CreateVertexBuffers();

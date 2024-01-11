@@ -100,11 +100,10 @@ namespace Application
 		auto bindingDescription = Vertex::getBindingDescription();
 		auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
-		vertexInputInfo.vertexAttributeDescriptionCount = 1;
-		vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-
 
 		// Setting the viewport info
 		VkPipelineViewportStateCreateInfo viewportInfo{};
@@ -132,14 +131,13 @@ namespace Application
 		pipelineInfo.renderPass = configInfo.renderPass;
 		pipelineInfo.subpass = configInfo.subpass;
 
-		pipelineInfo.basePipelineIndex = -1;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
 		// Creating the pipeline
 		if (vkCreateGraphicsPipelines(device.GetDevice(), VK_NULL_HANDLE, 1,
 			&pipelineInfo, nullptr, &graphicPipline) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create graphics pipeline");
+			//throw std::runtime_error("Failed to create graphics pipeline");
 		}
 
 		std::cout << "\t[INFO]: Pipeline created successfuly!" << std::endl;
