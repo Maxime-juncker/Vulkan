@@ -52,27 +52,41 @@ namespace Application
 	{
 	public:
 		Model(Device device);
-		~Model();
+		void Cleanup();
+
+		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+			VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 		VkBuffer GetVertexBuffer() { return vertexBuffer; }
+		VkBuffer GetIndexBuffer() { return indexBuffer; }
 
 		const std::vector<Vertex> vertices =
 		{
 			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-
-			{{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{-0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
+			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 		};
 
-		void CreateVertexBuffers();
+		// If we use more than 65535 unique vertices, we need to up the uint16_t to uint32_t.
+		const std::vector<uint16_t> indices =
+		{
+			0,1,2,2,3,0
+		};
+
 	private:
+		void CreateVertexBuffers();
+		void CreateIndexBuffers();
 
 		Device device;
+
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
+		VkBuffer indexBuffer;
+		VkDeviceMemory indexBufferMemory;
+
+		
 	};
 
 }

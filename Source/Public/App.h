@@ -38,7 +38,7 @@ namespace Application
 		Device device{ window };
 		SwapChain swapChain{ device, window.GetExtend() };
 		std::unique_ptr<Pipeline> pipeline;
-		std::unique_ptr<Model> model;
+		Model model{device};
 
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;

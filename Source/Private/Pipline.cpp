@@ -19,7 +19,7 @@ namespace Application
 		CreateGraphicPipline(vertFilePath, fragFilePath, configInfo);
 	}
 
-	Pipeline::~Pipeline()
+	void Pipeline::Cleanup()
 	{
 		vkDestroyShaderModule(device.GetDevice(), vertShaderModule, nullptr);
 		vkDestroyShaderModule(device.GetDevice(), fragShaderModule, nullptr);

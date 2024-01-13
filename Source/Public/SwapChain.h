@@ -8,7 +8,7 @@ namespace Application
 	{
 	public:
 		SwapChain(Device& device, VkExtent2D windowExtent);
-		~SwapChain();
+		void Cleanup();
 
 		void CreateSwapChain();
 

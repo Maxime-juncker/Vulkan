@@ -16,7 +16,7 @@ namespace Application
 		CreateFrameBuffers();
 	}
 
-	SwapChain::~SwapChain()
+	void SwapChain::Cleanup()
 	{
 		// Cleaning up the ressources
 

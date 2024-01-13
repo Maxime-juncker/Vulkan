@@ -30,7 +30,7 @@ namespace Application
 			const std::string& fragFilePath,
 			const PiplineConfigInfo& configInfo);
 
-		~Pipeline();
+		void Cleanup();
 
 		Pipeline(const Pipeline&) = delete;
 		void operator=(const Pipeline&) = delete;

@@ -8,8 +8,6 @@ namespace Application
 	App::App()
 	{
 		// Creating the app
-		model = std::make_unique<Model>(device);
-		model->CreateVertexBuffers();
 		CreatePipelineLayout();
 		CreatePipeline();
 
@@ -29,6 +27,13 @@ namespace Application
 			vkDestroyFence(device.GetDevice(), inFlightFences[i], nullptr);
 		}
 
+		swapChain.Cleanup();
+		model.Cleanup();
+		pipeline->Cleanup();
+
+
+		// /!\		THE DEVICE NEED TO BE THE LAST CLEANUP IN LAST						/!\ //
+		// /!\		lot of other things need the device event when jsut cleaning up		/!\ //
 		device.Cleanup();
 	}
 
@@ -126,13 +131,15 @@ namespace Application
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetGraphicPipeline());
 
-		VkBuffer vertexBuffers[]{ model->GetVertexBuffer() };
+		VkBuffer vertexBuffers[]{ model.GetVertexBuffer() };
+		VkBuffer indexBuffer { model.GetIndexBuffer() };
+
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(model.indices.size()), 1, 0, 0, 0);
 
-		vkCmdDraw(commandBuffer, static_cast<uint32_t>(model->vertices.size()), 1, 0, 0);
-
-		//vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 		vkCmdEndRenderPass(commandBuffer);
 
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
