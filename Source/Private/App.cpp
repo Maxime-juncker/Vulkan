@@ -186,14 +186,26 @@ namespace Application
 	{
 		// Make sure to wait for the old frame finish
 		vkWaitForFences(device.GetDevice(), 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-		vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
-
+	
 		// Setting the next frame
 		uint32_t imageIndex;
-
-		vkAcquireNextImageKHR(device.GetDevice(), swapChain.GetSwapChain(), UINT64_MAX,
+		VkResult result = vkAcquireNextImageKHR(device.GetDevice(), swapChain.GetSwapChain(), UINT64_MAX,
 			imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) // Swap chain need to be recreated
+		{
+			swapChain.RecreateSwapChain();
+			return;
+		}
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			throw std::runtime_error("Failed to acquiere swap chain image !");
+		}
+		
+		// Only reset the fence if we are submitting work.
+		vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
+
+		// Command buffer stuff
 		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
 		RecordCommandBuffers(commandBuffers[currentFrame], imageIndex);
 		
@@ -212,9 +224,6 @@ namespace Application
 		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame]};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
-
-		// Reset the fence for next frame
-		//vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
 
 		// Sending the frame in the queue
 		if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
@@ -235,10 +244,21 @@ namespace Application
 		presentInfo.pResults = nullptr; // Optional
 
 		// Displaying the frame
-		vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
+		result = vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.framebufferResized) 
+		{
+			// Reset the frame buffer resized.
+			window.framebufferResized = false;
+			// We need to recreate the swap chain
+			swapChain.RecreateSwapChain();
+		}
+		else if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to present swap chain image !");
+		}
 
 		// Don't overload the gpu
-		//vkQueueWaitIdle(device.GetGraphicsQueue()); // probl
+		vkQueueWaitIdle(device.GetGraphicsQueue()); // probl
 
 		// Cycle between frames
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;

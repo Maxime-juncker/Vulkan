@@ -36,6 +36,8 @@ namespace Application
 		VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
 		VkCommandPool GetCommandPool() { return commandPool; }
 
+		Window& GetWindow() { return window; }
+
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 		QueueFamiliesIndices FindQueueFamilies(VkPhysicalDevice device);
 

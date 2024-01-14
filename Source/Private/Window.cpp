@@ -1,4 +1,5 @@
 #include "../Public/Window.h"
+#include "../Public/App.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -35,11 +36,19 @@ namespace Application
 		std::cout << "\n[INFO]: Creating window..." << std::endl;
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
+		glfwSetWindowUserPointer(window, this);
+		glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 		std::cout << "\t[INFO]: Window created successfuly" << std::endl;
 
+	}
+
+	void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height)
+	{
+		auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+		app->framebufferResized = true;
 	}
 
 }

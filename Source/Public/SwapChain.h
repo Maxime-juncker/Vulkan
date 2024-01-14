@@ -7,10 +7,11 @@ namespace Application
 	class SwapChain
 	{
 	public:
-		SwapChain(Device& device, VkExtent2D windowExtent);
+		SwapChain(Device& device, Window& window);
 		void Cleanup();
 
 		void CreateSwapChain();
+		void RecreateSwapChain();
 
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -34,9 +35,12 @@ namespace Application
 		void CreateImageView();
 		void CreateRenderPass();
 		void CreateFrameBuffers();
+		void CleanupSwapChain();
 
 		// Swap chain
 		Device& device;
+		Window& window;
+
 		VkExtent2D windowExtent;
 		VkSwapchainKHR swapChain;
 		VkFormat swapChainImageFormat;

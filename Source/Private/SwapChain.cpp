@@ -8,8 +8,9 @@
 
 namespace Application
 {
-	SwapChain::SwapChain(Device& device, VkExtent2D windowExtent) : device{device}, windowExtent{windowExtent}
+	SwapChain::SwapChain(Device& device, Window& window) : device{device}, window{window}
 	{
+		windowExtent = window.GetExtend();
 		CreateSwapChain();
 		CreateImageView();
 		CreateRenderPass();
@@ -19,19 +20,8 @@ namespace Application
 	void SwapChain::Cleanup()
 	{
 		// Cleaning up the ressources
-
-		for (auto framebuffer : swapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(device.GetDevice(), framebuffer, nullptr);
-		}
-
-		for (auto imageView : swapChainImageViews)
-		{
-			vkDestroyImageView(device.GetDevice(), imageView, nullptr);
-		}
-
+		CleanupSwapChain();
 		vkDestroyRenderPass(device.GetDevice(), renderPass, nullptr);
-		vkDestroySwapchainKHR(device.GetDevice(), swapChain, nullptr);
 	}
 
 	void SwapChain::CreateSwapChain()
@@ -207,6 +197,46 @@ namespace Application
 				throw std::runtime_error("Failed to create framebuffers");
 			}
 		}
+	}
+
+	void SwapChain::RecreateSwapChain()
+	{
+		// Hanldling window minimization
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(window.GetWindow(), &width, &height);
+		while (width == 0 || height == 0)
+		{
+			glfwGetFramebufferSize(window.GetWindow(), &width, &height);
+			glfwWaitEvents();
+		}
+
+		// Touching ressource while they are in use is a bad idea.
+		vkDeviceWaitIdle(device.GetDevice());
+
+		// Cleaning up everything before recreating a new swap chain.
+		CleanupSwapChain();
+
+		// Actually creating a swap chain.
+		CreateSwapChain();
+		CreateImageView();
+		CreateFrameBuffers();
+	}
+
+	void SwapChain::CleanupSwapChain()
+	{
+		// Cleaning up the ressources
+
+		for (auto framebuffer : swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(device.GetDevice(), framebuffer, nullptr);
+		}
+
+		for (auto imageView : swapChainImageViews)
+		{
+			vkDestroyImageView(device.GetDevice(), imageView, nullptr);
+		}
+
+		vkDestroySwapchainKHR(device.GetDevice(), swapChain, nullptr);
 	}
 
 	VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)

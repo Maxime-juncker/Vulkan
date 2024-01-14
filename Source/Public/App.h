@@ -36,7 +36,7 @@ namespace Application
 
 		Window window{ WIDTH, HEIGHT, "Jen fenetre" };
 		Device device{ window };
-		SwapChain swapChain{ device, window.GetExtend() };
+		SwapChain swapChain{ device, window };
 		std::unique_ptr<Pipeline> pipeline;
 		Model model{device};
 
@@ -48,7 +48,6 @@ namespace Application
 		std::vector<VkFence> inFlightFences;
 		std::vector<VkFence> inFlightImages;
 		size_t currentFrame = 0;
-	
 	};
 
 }

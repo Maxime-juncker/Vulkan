@@ -17,15 +17,20 @@ namespace Application
 		bool ShouldClose() { return glfwWindowShouldClose(window); };
 		VkExtent2D GetExtend() { return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) }; }
 		void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
+		GLFWwindow* GetWindow() { return window; }
 
 		const int width;
 		const int height;
+		bool framebufferResized = false;
 	private:
 
 		void InitWindow();
+		static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
 		
 		std::string windowName;
 		GLFWwindow* window;
+
+
 
 	};
 
