@@ -55,8 +55,8 @@ namespace Application
 		// Setting the pipeline
 		VkPipelineLayoutCreateInfo pipelineCreateInfo{};
 		pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineCreateInfo.setLayoutCount = 0;
-		pipelineCreateInfo.pSetLayouts = nullptr;
+		pipelineCreateInfo.setLayoutCount = 1;
+		pipelineCreateInfo.pSetLayouts = &model.GetDescriptorLayout();
 		pipelineCreateInfo.pushConstantRangeCount = 0;
 		pipelineCreateInfo.pPushConstantRanges = nullptr;
 		if (vkCreatePipelineLayout(device.GetDevice(), &pipelineCreateInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -136,8 +136,11 @@ namespace Application
 
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+			&model.GetDescriptorSets(currentFrame), 0, nullptr);
+		
+		vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(model.indices.size()), 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffer);
@@ -201,6 +204,8 @@ namespace Application
 		{
 			throw std::runtime_error("Failed to acquiere swap chain image !");
 		}
+
+		model.UpdateUniformBuffer(currentFrame);
 		
 		// Only reset the fence if we are submitting work.
 		vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);

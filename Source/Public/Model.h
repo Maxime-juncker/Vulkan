@@ -1,9 +1,12 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <GLFW/glfw3.h>
 
 #include "Device.h"
+#include "SwapChain.h"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -11,6 +14,13 @@
 
 namespace Application
 {
+	struct UniformBufferObject
+	{
+		alignas(16) glm::mat4 model;
+		alignas(16) glm::mat4 view;
+		alignas(16) glm::mat4 proj;
+	};
+
 	struct Vertex
 	{
 		glm::vec2 pos;
@@ -51,7 +61,7 @@ namespace Application
 	class Model
 	{
 	public:
-		Model(Device device);
+		Model(Device device, SwapChain swapChain);
 		void Cleanup();
 
 		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
@@ -60,6 +70,8 @@ namespace Application
 
 		VkBuffer GetVertexBuffer() { return vertexBuffer; }
 		VkBuffer GetIndexBuffer() { return indexBuffer; }
+		VkDescriptorSetLayout& GetDescriptorLayout() { return descriptorSetLayout; }
+		VkDescriptorSet& GetDescriptorSets(int32_t index) { return descriptorSets[index]; }
 
 		const std::vector<Vertex> vertices =
 		{
@@ -75,18 +87,36 @@ namespace Application
 			0,1,2,2,3,0
 		};
 
+		void UpdateUniformBuffer(uint32_t currentImage);
 	private:
 		void CreateVertexBuffers();
 		void CreateIndexBuffers();
+		void CreateUniformBuffers();
+		void CreateDescriptionSetLayout();
+		void CreateDescriptorPool();
+		void CreateDescriptorSet();
+
 
 		Device device;
+		SwapChain swapChain;
 
+		// Buffers.
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
 		VkBuffer indexBuffer;
 		VkDeviceMemory indexBufferMemory;
+		// The uniform buffer will be calculate every frame
+		// but we don't want the next frame to read the current uniform buffer
+		// so each frame in flight will have it's on uniform buffer.
+		std::vector<VkBuffer> uniformBuffers;
+		std::vector<VkDeviceMemory> uniformBuffersMemory;
+		std::vector<void*> uniformBuffersMapped;
 
-		
+		// Descriptors
+		VkDescriptorSetLayout descriptorSetLayout;
+		VkDescriptorPool descriptorPool;
+		std::vector<VkDescriptorSet> descriptorSets;
+						
 	};
 
 }

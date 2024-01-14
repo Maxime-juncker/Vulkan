@@ -13,7 +13,7 @@ namespace Application
 	class App
 	{
 	public:
-		const int MAX_FRAMES_IN_FLIGHT = 2;
+		static const int MAX_FRAMES_IN_FLIGHT = 2;
 		static constexpr int WIDTH = 800;
 		static constexpr int HEIGHT = 600;
 
@@ -37,8 +37,8 @@ namespace Application
 		Window window{ WIDTH, HEIGHT, "Jen fenetre" };
 		Device device{ window };
 		SwapChain swapChain{ device, window };
+		Model model{device, swapChain};
 		std::unique_ptr<Pipeline> pipeline;
-		Model model{device};
 
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
