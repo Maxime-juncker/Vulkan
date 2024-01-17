@@ -117,6 +117,30 @@ namespace Application
 		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 	}
 
+	VkImageView Device::CreateImageView(VkImage image, VkFormat format)
+	{
+		// Settings view info.
+		VkImageViewCreateInfo viewInfo{};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = format;
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		// Creating the image view.
+		VkImageView imageView;
+		if (vkCreateImageView(GetDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create texture image view ! ");
+		}
+
+		return imageView;
+	}
+
 
 	void Device::CreateInstance()
 	{
@@ -455,7 +479,9 @@ namespace Application
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
-		return indices.isComplete() && extensionsSupported && swapChainAdequate;
+		
+		return indices.isComplete() && extensionsSupported && swapChainAdequate 
+			&& deviceFeatures.samplerAnisotropy;
 	}
 
 	bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device)
@@ -586,6 +612,9 @@ namespace Application
 		{
 			createInfo.enabledLayerCount = 0;
 		}
+
+		// Ask for features
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
 		{

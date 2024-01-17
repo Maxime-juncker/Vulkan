@@ -12,7 +12,7 @@ namespace Application
 	{
 		windowExtent = window.GetExtend();
 		CreateSwapChain();
-		CreateImageView();
+		CreateImageViews();
 		CreateRenderPass();
 		CreateFrameBuffers();
 	}
@@ -89,38 +89,14 @@ namespace Application
 		swapChainExtend = extend;
 	}
 
-	void SwapChain::CreateImageView()
+	void SwapChain::CreateImageViews()
 	{
 		swapChainImageViews.resize(swapChainImages.size());
 
 		// Populating the swap chain images views
 		for (size_t i = 0; i < swapChainImages.size(); i++)
 		{
-			VkImageViewCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = swapChainImages[i];
-
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = swapChainImageFormat;
-
-			// Setting the colors of the image view
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-			// Setting image usecase
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
-
-			// Creating the image view
-			if (vkCreateImageView(device.GetDevice(), &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to create an image view");
-			}
+			swapChainImageViews[i] = device.CreateImageView(swapChainImages[i], swapChainImageFormat);
 		}
 	}
 
@@ -218,7 +194,7 @@ namespace Application
 
 		// Actually creating a swap chain.
 		CreateSwapChain();
-		CreateImageView();
+		CreateImageViews();
 		CreateFrameBuffers();
 	}
 

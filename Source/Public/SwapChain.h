@@ -32,7 +32,7 @@ namespace Application
 		VkSwapchainKHR GetSwapChain() { return swapChain; }
 
 	private:
-		void CreateImageView();
+		void CreateImageViews();
 		void CreateRenderPass();
 		void CreateFrameBuffers();
 		void CleanupSwapChain();

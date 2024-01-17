@@ -37,6 +37,9 @@ namespace Application
 		VkCommandBuffer BeginSingleTimeCommands();
 		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 
+		VkImageView CreateImageView(VkImage image, VkFormat format);
+
+
 		VkDevice GetDevice() { return device; }
 		VkSurfaceKHR GetSurface() { return surface; }
 		VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }

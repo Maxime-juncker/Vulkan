@@ -18,6 +18,8 @@ namespace Application
 	Model::Model(Device device, SwapChain swapChain) : device{device}, swapChain{swapChain}
 	{
 		CreateTextureImage();
+		CreateTextureImageView();
+		CreateTextureSampler();
 		CreateVertexBuffers();
 		CreateIndexBuffers();
 		CreateUniformBuffers();
@@ -28,7 +30,7 @@ namespace Application
 
 	void Model::Cleanup()
 	{
-
+		// Cleaning buffers
 		vkDestroyBuffer(device.GetDevice(), vertexBuffer, nullptr);
 		vkFreeMemory(device.GetDevice(), vertexBufferMemory, nullptr);
 
@@ -41,14 +43,17 @@ namespace Application
 			vkFreeMemory(device.GetDevice(), uniformBuffersMemory[i], nullptr);
 		}
 
+		// Cleaning descriptors
 		vkDestroyDescriptorSetLayout(device.GetDevice(), descriptorSetLayout, nullptr);
-
 		vkDestroyDescriptorPool(device.GetDevice(), descriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(device.GetDevice(), descriptorSetLayout, nullptr);
 
 		// Cleaning the texture
+		vkDestroyImageView(device.GetDevice(), textureImageView, nullptr); // Need to be before vkDestroyImage.
 		vkDestroyImage(device.GetDevice(), textureImage, nullptr);
 		vkFreeMemory(device.GetDevice(), textureImageMemory, nullptr);
+		vkDestroySampler(device.GetDevice(), textureSampler, nullptr);
+		vkDestroyImageView(device.GetDevice(), textureImageView, nullptr);
 	}
 
 	void Model::CreateVertexBuffers()
@@ -148,6 +153,7 @@ namespace Application
 		{
 			throw std::runtime_error("Failed to create descriptor set layout !");
 		}
+
 	}
 
 	void Model::CreateDescriptorPool()
@@ -325,7 +331,8 @@ namespace Application
 		VkPipelineStageFlags srcStage;
 		VkPipelineStageFlags dstStage;
 
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED 
+			&& newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -333,7 +340,8 @@ namespace Application
 			srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+			&& newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 		{
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -349,7 +357,7 @@ namespace Application
 		vkCmdPipelineBarrier
 		(
 			commandBuffer,
-			0 /* TODO */, 0, /* TODO */
+			srcStage, dstStage,
 			0,
 			0, nullptr,
 			0, nullptr,
@@ -358,6 +366,44 @@ namespace Application
 
 		// Ending the buffer.
 		device.EndSingleTimeCommands(commandBuffer);
+	}
+
+	void Model::CreateTextureImageView()
+	{
+		// Creating a new image view.
+		textureImageView = device.CreateImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+	}
+
+	void Model::CreateTextureSampler()
+	{
+		VkPhysicalDeviceProperties properties{};
+		vkGetPhysicalDeviceProperties(device.GetPhysicalDevice(), &properties);
+
+		VkSamplerCreateInfo samplerInfo{};
+		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.magFilter = VK_FILTER_LINEAR;
+		samplerInfo.minFilter = VK_FILTER_LINEAR;
+
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.maxAnisotropy = 1.0f;
+		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		// false = range from 0 to 1, true = range from 0 to texHeight / texWidth
+		samplerInfo.unnormalizedCoordinates = VK_FALSE;
+		samplerInfo.compareEnable = VK_FALSE;
+		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = 0.0f;
+
+		if (vkCreateSampler(device.GetDevice(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create texture sampler !");
+		}
 	}
 
 	void Model::UpdateUniformBuffer(uint32_t currentImage)

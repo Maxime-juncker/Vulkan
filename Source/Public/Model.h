@@ -66,6 +66,7 @@ namespace Application
 		Model(Device device, SwapChain swapChain);
 		void Cleanup();
 
+		// Getter
 		VkBuffer GetVertexBuffer() { return vertexBuffer; }
 		VkBuffer GetIndexBuffer() { return indexBuffer; }
 		VkDescriptorSetLayout& GetDescriptorLayout() { return descriptorSetLayout; }
@@ -88,18 +89,24 @@ namespace Application
 		void UpdateUniformBuffer(uint32_t currentImage);
 		void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	private:
+		// Buffer methodes
 		void CreateVertexBuffers();
 		void CreateIndexBuffers();
 		void CreateUniformBuffers();
 		void CreateDescriptionSetLayout();
 		void CreateDescriptorPool();
 		void CreateDescriptorSet();
+
+		// Image methodes
 		void CreateTextureImage();
 		void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
 			VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
 			VkImage& image, VkDeviceMemory& imageMemory);
 		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void CreateTextureImageView();
+		void CreateTextureSampler();
 
+		// References
 		Device device;
 		SwapChain swapChain;
 
@@ -123,6 +130,8 @@ namespace Application
 		// Images
 		VkImage textureImage;
 		VkDeviceMemory textureImageMemory;
+		VkImageView textureImageView;
+		VkSampler textureSampler;
 						
 	};
 
