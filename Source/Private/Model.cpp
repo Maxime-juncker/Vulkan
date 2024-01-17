@@ -46,14 +46,12 @@ namespace Application
 		// Cleaning descriptors
 		vkDestroyDescriptorSetLayout(device.GetDevice(), descriptorSetLayout, nullptr);
 		vkDestroyDescriptorPool(device.GetDevice(), descriptorPool, nullptr);
-		vkDestroyDescriptorSetLayout(device.GetDevice(), descriptorSetLayout, nullptr);
 
 		// Cleaning the texture
 		vkDestroyImageView(device.GetDevice(), textureImageView, nullptr); // Need to be before vkDestroyImage.
 		vkDestroyImage(device.GetDevice(), textureImage, nullptr);
 		vkFreeMemory(device.GetDevice(), textureImageMemory, nullptr);
 		vkDestroySampler(device.GetDevice(), textureSampler, nullptr);
-		vkDestroyImageView(device.GetDevice(), textureImageView, nullptr);
 	}
 
 	void Model::CreateVertexBuffers()
@@ -136,18 +134,28 @@ namespace Application
 
 	void Model::CreateDescriptionSetLayout()
 	{
-		// Creating uniform buffer.
+		// Creating uniform buffer layout.
 		VkDescriptorSetLayoutBinding uboLayoutBinding{};
 		uboLayoutBinding.binding = 0;
 		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		uboLayoutBinding.descriptorCount = 1;
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		
-		// Creating the layout info
+
+		// Creating sampler layout.
+		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+		samplerLayoutBinding.binding = 1;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &uboLayoutBinding;
+		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+		layoutInfo.pBindings = bindings.data();
+
 
 		if (vkCreateDescriptorSetLayout(device.GetDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
 		{
@@ -159,14 +167,16 @@ namespace Application
 	void Model::CreateDescriptorPool()
 	{
 		// Creating descriptor pool.
-		VkDescriptorPoolSize poolSize{};
-		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount = static_cast<uint32_t>(App::MAX_FRAMES_IN_FLIGHT);
+		std::array<VkDescriptorPoolSize, 2> poolSizes{};
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].descriptorCount = static_cast<uint32_t>(App::MAX_FRAMES_IN_FLIGHT);
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSizes[1].descriptorCount = static_cast<uint32_t>(App::MAX_FRAMES_IN_FLIGHT);
 		
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = 1;
-		poolInfo.pPoolSizes = &poolSize;
+		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+		poolInfo.pPoolSizes = poolSizes.data();
 		poolInfo.maxSets = static_cast<uint32_t>(App::MAX_FRAMES_IN_FLIGHT);
 
 		if (vkCreateDescriptorPool(device.GetDevice(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
@@ -200,17 +210,31 @@ namespace Application
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
-			// Creating VkWriteDescriptorSet 
-			VkWriteDescriptorSet descriptorWrite{};
-			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = descriptorSets[i];
-			descriptorWrite.dstBinding = 0;
-			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrite.descriptorCount = 1;
-			descriptorWrite.pBufferInfo = &bufferInfo;
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = textureImageView;
+			imageInfo.sampler = textureSampler;
 
-			vkUpdateDescriptorSets(device.GetDevice(), 1, &descriptorWrite, 0, nullptr);
+			// Creating VkWriteDescriptorSet 
+			std::array<VkWriteDescriptorSet, 2> descriptorWrite{};
+			descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite[0].dstSet = descriptorSets[i];
+			descriptorWrite[0].dstBinding = 0;
+			descriptorWrite[0].dstArrayElement = 0;
+			descriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite[0].descriptorCount = 1;
+			descriptorWrite[0].pBufferInfo = &bufferInfo;
+
+			descriptorWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite[1].dstSet = descriptorSets[i];
+			descriptorWrite[1].dstBinding = 1;
+			descriptorWrite[1].dstArrayElement = 0;
+			descriptorWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrite[1].descriptorCount = 1;
+			descriptorWrite[1].pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(device.GetDevice(), 
+				static_cast<uint32_t>(descriptorWrite.size()), descriptorWrite.data(), 0, nullptr);
 		}
 	}
 
@@ -415,7 +439,7 @@ namespace Application
 
 		UniformBufferObject ubo{};
 		// Note : glm::rotate(glm::mat4(1.0f) = matrice identity 4
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(120.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.proj = glm::perspective(glm::radians(45.f), 
 			swapChain.GetSwapChainExtent().width / (float)swapChain.GetSwapChainExtent().height, 0.1f, 10.0f);

@@ -27,6 +27,7 @@ namespace Application
 	{
 		glm::vec2 pos;
 		glm::vec3 color;
+		glm::vec2 texCoord;
 
 		static VkVertexInputBindingDescription getBindingDescription()
 		{
@@ -39,9 +40,9 @@ namespace Application
 			return bindingDescription;
 		}
 
-		static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+		static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
 		{
-			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
 			// Position attribute
 			attributeDescriptions[0].binding = 0;
@@ -55,6 +56,12 @@ namespace Application
 			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 			// Note : the color attribute is at an offset in the vertex struct because it's the 2nd parameter
 			attributeDescriptions[1].offset = offsetof(Vertex, color); 
+
+			// Coordinates
+			attributeDescriptions[2].binding = 0;
+			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
 
 			return attributeDescriptions;
 		}
@@ -74,10 +81,10 @@ namespace Application
 
 		const std::vector<Vertex> vertices =
 		{
-			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f},  {1.0f, 0.0f}},
+			{{0.5f, -0.5f},  {0.0f, 1.0f, 0.0f},  {0.0f, 0.0f}},
+			{{0.5f, 0.5f},   {0.0f, 0.0f, 1.0f},  {0.0f, 1.0f}},
+			{{-0.5f, 0.5f},  {1.0f, 1.0f, 1.0f},  {1.0f, 1.0f}}
 		};
 
 		// If we use more than 65535 unique vertices, we need to up the uint16_t to uint32_t.
@@ -93,6 +100,7 @@ namespace Application
 		void CreateVertexBuffers();
 		void CreateIndexBuffers();
 		void CreateUniformBuffers();
+		// Sets methodes
 		void CreateDescriptionSetLayout();
 		void CreateDescriptorPool();
 		void CreateDescriptorSet();
