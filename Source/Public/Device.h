@@ -31,6 +31,12 @@ namespace Application
 		Device(Window& window);
 		~Device();
 
+		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+			VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+		VkCommandBuffer BeginSingleTimeCommands();
+		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
 		VkDevice GetDevice() { return device; }
 		VkSurfaceKHR GetSurface() { return surface; }
 		VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }

@@ -5,6 +5,8 @@
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <GLFW/glfw3.h>
 
+
+
 #include "Device.h"
 #include "SwapChain.h"
 
@@ -64,10 +66,6 @@ namespace Application
 		Model(Device device, SwapChain swapChain);
 		void Cleanup();
 
-		void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-			VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-		void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
 		VkBuffer GetVertexBuffer() { return vertexBuffer; }
 		VkBuffer GetIndexBuffer() { return indexBuffer; }
 		VkDescriptorSetLayout& GetDescriptorLayout() { return descriptorSetLayout; }
@@ -88,6 +86,7 @@ namespace Application
 		};
 
 		void UpdateUniformBuffer(uint32_t currentImage);
+		void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	private:
 		void CreateVertexBuffers();
 		void CreateIndexBuffers();
@@ -95,7 +94,11 @@ namespace Application
 		void CreateDescriptionSetLayout();
 		void CreateDescriptorPool();
 		void CreateDescriptorSet();
-
+		void CreateTextureImage();
+		void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+			VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
+			VkImage& image, VkDeviceMemory& imageMemory);
+		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
 		Device device;
 		SwapChain swapChain;
@@ -116,6 +119,10 @@ namespace Application
 		VkDescriptorSetLayout descriptorSetLayout;
 		VkDescriptorPool descriptorPool;
 		std::vector<VkDescriptorSet> descriptorSets;
+
+		// Images
+		VkImage textureImage;
+		VkDeviceMemory textureImageMemory;
 						
 	};
 
