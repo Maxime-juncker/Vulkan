@@ -1,5 +1,7 @@
 Dependencies
 x64
-.vs
-/.vs
+
 .vs/
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters

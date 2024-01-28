@@ -235,13 +235,13 @@
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="compile.bat" />
-    <None Include="Ressources\Shaders\SimpleShader.frag" />
-    <None Include="Ressources\Shaders\SimpleShader.frag.spv" />
-    <None Include="Ressources\Shaders\SimpleShader.vert" />
-    <None Include="Ressources\Shaders\SimpleShader.vert.spv" />
+    <None Include="Resources\Shaders\SimpleShader.frag" />
+    <None Include="Resources\Shaders\SimpleShader.frag.spv" />
+    <None Include="Resources\Shaders\SimpleShader.vert" />
+    <None Include="Resources\Shaders\SimpleShader.vert.spv" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Ressources\Textures\pizza.jpg" />
+    <Image Include="Resources\Textures\pizza.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

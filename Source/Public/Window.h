@@ -1,6 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
 #include <string>
 
 namespace Application
@@ -12,26 +13,25 @@ namespace Application
 		~Window();
 
 		Window(const Window&) = delete;
-		Window& operator=(const Window&) = delete;
+		Window& operator = (const Window&) = delete;
 
-		bool ShouldClose() { return glfwWindowShouldClose(window); };
-		VkExtent2D GetExtend() { return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) }; }
+		bool ShouldClose() { return glfwWindowShouldClose(window); }
 		void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
-		GLFWwindow* GetWindow() { return window; }
-
-		const int width;
-		const int height;
-		bool framebufferResized = false;
+		bool WasWindowResized() { return frameBufferResized; }
+		void ResetWindowResizedFlag() { frameBufferResized = false; }
+		VkExtent2D GetExtend() 
+		{ 
+			return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) }; 
+		}
 	private:
-
+		static void FrameBufferResizeCallback(GLFWwindow* window, int width, int height);
 		void InitWindow();
-		static void FramebufferResizeCallback(GLFWwindow* window, int width, int height);
-		
+
+		int width;
+		int height;
+		bool frameBufferResized = false;
+
 		std::string windowName;
 		GLFWwindow* window;
-
-
-
 	};
-
 }

@@ -6,16 +6,20 @@
 
 namespace Application
 {
-	struct PiplineConfigInfo
+	struct PipelineConfigInfo
 	{
-		VkViewport viewport;
-		VkRect2D scissor;
+		//PipelineConfigInfo(const PipelineConfigInfo&) = delete;
+		//PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+
+		VkPipelineViewportStateCreateInfo viewportInfo;
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
 		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
 		VkPipelineMultisampleStateCreateInfo multisampleInfo;
-		VkPipelineColorBlendAttachmentState colorBlendAttachement;
+		VkPipelineColorBlendAttachmentState colorBlendAttachment;
 		VkPipelineColorBlendStateCreateInfo colorBlendInfo;
 		VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+		std::vector<VkDynamicState> dynamicStateEnables;
+		VkPipelineDynamicStateCreateInfo dynamicStateInfo;
 		VkPipelineLayout pipelineLayout = nullptr;
 		VkRenderPass renderPass = nullptr;
 		uint32_t subpass = 0;
@@ -26,30 +30,29 @@ namespace Application
 	public:
 		Pipeline(
 			Device& device, 
-			const std::string& vertFilePath, 
-			const std::string& fragFilePath,
-			const PiplineConfigInfo& configInfo);
-
-		void Cleanup();
+			const std::string vertFilepath,
+			const std::string fragFilepath,
+			const PipelineConfigInfo configInfo);
+		~Pipeline();
 
 		Pipeline(const Pipeline&) = delete;
-		void operator=(const Pipeline&) = delete;
+		Pipeline& operator=(const Pipeline&) = delete;
 
-		static PiplineConfigInfo DefaultPiplineConfigInfo(uint32_t width, uint32_t height);
-		VkPipeline GetGraphicPipeline() { return graphicPipline; }
+		static void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 
+		void Bind(VkCommandBuffer commandBuffer);
 	private:
-		static std::vector<char> ReadFile(const std::string& path);
+		static std::vector<char> ReadFile(const std::string& filepath);
 
-		void CreateGraphicPipline(
-			const std::string& vertFilePath,
-			const std::string& fragFilePath,
-			const PiplineConfigInfo& configInfo);
+		void CreatePipeline(
+			const std::string vertFilepath,
+			const std::string fragFilepath,
+			const PipelineConfigInfo configInfo);
 
 		void CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
 		Device& device;
-		VkPipeline graphicPipline;
+		VkPipeline graphicsPipeline;
 		VkShaderModule vertShaderModule;
 		VkShaderModule fragShaderModule;
 	};

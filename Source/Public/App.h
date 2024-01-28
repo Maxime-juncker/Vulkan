@@ -1,53 +1,46 @@
 #pragma once
-
-#include "Window.h"
+#include "window.h"
 #include "Pipline.h"
 #include "Device.h"
 #include "SwapChain.h"
 #include "Model.h"
 
 #include <memory>
-#include <vector>
+
 namespace Application
 {
 	class App
 	{
 	public:
-		static const int MAX_FRAMES_IN_FLIGHT = 2;
-		static constexpr int WIDTH = 800;
-		static constexpr int HEIGHT = 600;
-
 		App();
 		~App();
 
 		App(const App&) = delete;
 		App& operator=(const App&) = delete;
 
-		void Run();
+		static constexpr int WIDTH = 800;
+		static constexpr int HEIGHT = 600;
 
+		void Run();
 	private:
+		void LoadModels();
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
-		void CreateSyncObject();
+
 		void DrawFrame();
+		void RecreateSwapChain();
+		void RecordCommandBuffer(int imageIndex);
+		void FreeCommandBuffers();
 
-		void RecordCommandBuffers(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
-		Window window{ WIDTH, HEIGHT, "Jen fenetre" };
+		Window window{ WIDTH, HEIGHT, "Jen fentre" };
 		Device device{ window };
-		SwapChain swapChain{ device, window };
-		Model model{device, swapChain};
+		std::unique_ptr<SwapChain> swapChain;
 		std::unique_ptr<Pipeline> pipeline;
+		std::unique_ptr<Model> model;
 
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
 
-		std::vector<VkSemaphore> imageAvailableSemaphores;
-		std::vector<VkSemaphore> renderFinishedSemaphores;
-		std::vector<VkFence> inFlightFences;
-		std::vector<VkFence> inFlightImages;
-		size_t currentFrame = 0;
 	};
-
 }
