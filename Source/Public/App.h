@@ -1,9 +1,8 @@
 #pragma once
 #include "window.h"
-#include "Pipline.h"
 #include "Device.h"
-#include "SwapChain.h"
-#include "Model.h"
+#include "Renderer.h"
+#include "GameObject.h"
 
 #include <memory>
 
@@ -23,24 +22,11 @@ namespace Application
 
 		void Run();
 	private:
-		void LoadModels();
-		void CreatePipelineLayout();
-		void CreatePipeline();
-		void CreateCommandBuffers();
-
-		void DrawFrame();
-		void RecreateSwapChain();
-		void RecordCommandBuffer(int imageIndex);
-		void FreeCommandBuffers();
+		void LoadGameObjects();
 
 		Window window{ WIDTH, HEIGHT, "Jen fentre" };
 		Device device{ window };
-		std::unique_ptr<SwapChain> swapChain;
-		std::unique_ptr<Pipeline> pipeline;
-		std::unique_ptr<Model> model;
-
-		VkPipelineLayout pipelineLayout;
-		std::vector<VkCommandBuffer> commandBuffers;
-
+		Renderer renderer{ device, window };
+		std::vector<GameObject> gameObjects;
 	};
 }
