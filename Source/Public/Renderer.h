@@ -48,7 +48,7 @@ namespace Application
 
 		bool isFrameStarted = false;
 		int currentFrameIndex = 0;
-		int currentImageIndex;
+		uint32_t currentImageIndex;
 
 	};
 }
