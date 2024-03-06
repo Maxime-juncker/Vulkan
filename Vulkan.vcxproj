@@ -112,6 +112,11 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <OutputFile>$(SolutionDir)Core\Dependencies\STB;$(SolutionDir)Core\Dependencies\GLM;$(SolutionDir)Core\Dependencies\GLFW\include;$(SolutionDir)Core\Dependencies\VULKAN\Include</OutputFile>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Core\Dependencies\VULKAN\Lib;$(SolutionDir)Core\Dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -147,6 +152,11 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <OutputFile>$(SolutionDir)Core\Dependencies\STB;$(SolutionDir)Core\Dependencies\GLM;$(SolutionDir)Core\Dependencies\GLFW\include;$(SolutionDir)Core\Dependencies\VULKAN\Include</OutputFile>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Core\Dependencies\VULKAN\Lib;$(SolutionDir)Core\Dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -178,6 +188,11 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <OutputFile>$(SolutionDir)Core\Dependencies\STB;$(SolutionDir)Core\Dependencies\GLM;$(SolutionDir)Core\Dependencies\GLFW\include;$(SolutionDir)Core\Dependencies\VULKAN\Include</OutputFile>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Core\Dependencies\VULKAN\Lib;$(SolutionDir)Core\Dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -213,6 +228,11 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Lib>
+      <OutputFile>$(SolutionDir)Core\Dependencies\STB;$(SolutionDir)Core\Dependencies\GLM;$(SolutionDir)Core\Dependencies\GLFW\include;$(SolutionDir)Core\Dependencies\VULKAN\Include</OutputFile>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Core\Dependencies\VULKAN\Lib;$(SolutionDir)Core\Dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\STB\stb_image.h" />
