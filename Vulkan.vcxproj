@@ -178,7 +178,8 @@
       </Command>
     </PreLinkEvent>
     <PreBuildEvent>
-      <Command>call $(ProjectDir)compile.bat</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <CustomBuildStep>
       <Command>
@@ -218,7 +219,8 @@
       </Command>
     </PreLinkEvent>
     <PreBuildEvent>
-      <Command>call $(ProjectDir)compile.bat</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <CustomBuildStep>
       <Command>
