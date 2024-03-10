@@ -98,7 +98,8 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>call $(ProjectDir)compile.bat</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PreLinkEvent>
       <Command>
